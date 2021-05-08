@@ -276,6 +276,20 @@ function sshare() {
     fi
 }
 
+function shopify-share() {
+    if [[ "$1" ]]
+    then
+        ngrok http ${@:2} "$1.ngrok":80 --host-header=rewrite
+    else
+        echo "Missing required parameters."
+    fi
+}
+
+function shopify-share-lt() {
+    echo "lt -p 80 -l $1.lt ${@:2}"
+    lt -p 80 -l "$1.lt" ${@:2}
+}
+
 function flip() {
     sudo bash /vagrant/scripts/flip-webserver.sh
 }
