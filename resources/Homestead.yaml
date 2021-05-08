@@ -14,8 +14,18 @@ folders:
       to: /home/vagrant/code
 
 sites:
-    - map: homestead.test
-      to: /home/vagrant/code/public
+    - map: shopify.local
+      to: /home/vagrant/code/shopify
+      type: shopify
+      shopify:
+          backend_path: backend
+          frontend_dev_url: "http://127.0.0.1:3000/"
+          public_path: public
+      headers:
+          - key: Access-Control-Allow-Origin
+            value: "*"
+      # add host in your host machine:
+      #    192.168.10.10    shopify.local.proxy
 
 databases:
     - homestead

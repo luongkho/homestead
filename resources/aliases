@@ -215,6 +215,10 @@ function share() {
     fi
 }
 
+function shopify-share() {
+    ngrok http "$1.proxy" -host-header=rewrite
+}
+
 function flip() {
     sudo bash /vagrant/scripts/flip-webserver.sh
 }

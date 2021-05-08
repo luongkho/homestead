@@ -351,6 +351,12 @@ class Homestead
             # Escape variables for bash
             rewrites.gsub! '$', '\$'
           end
+          # Build Shopify params if any
+          if site.include? 'shopify'
+            shopify_params = '([backend_path]=' + (site['shopify']['backend_path'] ||= 'backend') +
+                             ' [frontend_dev_url]=' + (site['shopify']['frontend_dev_url'] ||= 'http://127.0.0.1:3000/') +
+                             ' [public_path]=' + (site['shopify']['public_path'] ||= 'public') + ')'
+          end
 
           # Convert the site & any options to an array of arguments passed to the
           # specific site type script (defaults to laravel)
@@ -365,7 +371,8 @@ class Homestead
               site['xhgui'] ||= '',       # $7
               site['exec'] ||= 'false',   # $8
               headers ||= '',             # $9
-              rewrites ||= ''             # $10
+              rewrites ||= '',            # $10
+              shopify_params ||= ''       # $11
           ]
 
           # Should we use the wildcard ssl?
@@ -431,6 +438,14 @@ class Homestead
         config.vm.provision 'shell' do |s|
           s.path = script_dir + "/hosts-add.sh"
           s.args = ['127.0.0.1', site['map']]
+        end
+        # Additional host for Shopify
+        if type == 'shopify'
+          config.vm.provision 'shell' do |s|
+            s.name = 'Additional Shopify proxy host: ' + site['map'] + '.proxy'
+            s.path = script_dir + "/hosts-add.sh"
+            s.args = ['127.0.0.1', site['map'] + '.proxy']
+          end
         end
 
         # Configure The Cron Schedule
