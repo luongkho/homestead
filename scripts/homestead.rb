@@ -351,6 +351,19 @@ class Homestead
             # Escape variables for bash
             rewrites.gsub! '$', '\$'
           end
+          # Build Shopify params if any
+          if site.include? 'shopify'
+            if site['shopify'].include? 'tunnelPort'
+              shopify_tunnel_port = site['shopify']['tunnelPort']
+            end
+            if site['shopify'].include? 'maps'
+              shopify_proxies = '('
+              site['shopify']['maps'].each do |proxy|
+                shopify_proxies += ' [' + proxy['from'] + ']=' + proxy['to']
+              end
+              shopify_proxies += ' )'
+            end
+          end
 
           # Convert the site & any options to an array of arguments passed to the
           # specific site type script (defaults to laravel)
@@ -365,7 +378,9 @@ class Homestead
               site['xhgui'] ||= '',       # $7
               site['exec'] ||= 'false',   # $8
               headers ||= '',             # $9
-              rewrites ||= ''             # $10
+              rewrites ||= '',            # $10
+              shopify_tunnel_port ||= 0,  # $11
+              shopify_proxies ||= ''      # $12
           ]
 
           # Should we use the wildcard ssl?
@@ -431,6 +446,24 @@ class Homestead
         config.vm.provision 'shell' do |s|
           s.path = script_dir + "/hosts-add.sh"
           s.args = ['127.0.0.1', site['map']]
+        end
+        # Additional host for Shopify
+        if type == 'shopify'
+          config.vm.provision 'shell' do |s|
+            s.name = 'Additional Shopify tunnel host: ' + site['map'] + '.tunnel'
+            s.path = script_dir + "/hosts-add.sh"
+            s.args = ['127.0.0.1', site['map'] + '.tunnel']
+          end
+          config.vm.provision 'shell' do |s|
+            s.name = 'Additional Shopify ngrok host: ' + site['map'] + '.ngrok'
+            s.path = script_dir + "/hosts-add.sh"
+            s.args = ['127.0.0.1', site['map'] + '.ngrok']
+          end
+          config.vm.provision 'shell' do |s|
+            s.name = 'Additional Shopify LocalTunnel host: ' + site['map'] + '.lt'
+            s.path = script_dir + "/hosts-add.sh"
+            s.args = ['127.0.0.1', site['map'] + '.lt']
+          end
         end
 
         # Configure The Cron Schedule
