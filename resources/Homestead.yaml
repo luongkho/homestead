@@ -16,16 +16,22 @@ folders:
 sites:
     - map: shopify.local
       to: /home/vagrant/code/shopify
+      headers:
+        - key: Access-Control-Allow-Origin
+          value: "*"
       type: shopify
       shopify:
-          backend_path: backend
-          frontend_dev_url: "http://127.0.0.1:3000/"
-          public_path: public
-      headers:
-          - key: Access-Control-Allow-Origin
-            value: "*"
-      # add host in your host machine:
-      #    192.168.10.10    shopify.local.proxy
+        proxies:
+          port: 80
+          maps:
+            - from: /backend/
+              to: http://shopify.local/backend/
+            - from: /public/
+              to: http://shopify.local/public/
+            - from: /
+              to: http://shopify.local/
+      # Publish shopify domain
+      #    shopify-share shopify.local
 
 databases:
     - homestead

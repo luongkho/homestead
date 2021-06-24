@@ -3,7 +3,7 @@
 declare -A params=$6       # Create an associative array
 declare -A headers=${9}    # Create an associative array
 declare -A rewrites=${10}  # Create an associative array
-declare -A shopifyParams=${11}
+declare -A shopifyProxies=${12}
 paramsTXT=""
 if [ -n "$6" ]; then
    for element in "${!params[@]}"
@@ -29,23 +29,23 @@ if [ -n "${10}" ]; then
    done
 fi
 shopifyProxyTXT=""
-if [ -n "${11}" ]; then
-    shopifyProxyTXT="# Proxy here
+if [ -n "${12}" ]; then
+   proxyMappingTXT=""
+   for proxy in "${!shopifyProxies[@]}"
+   do
+      proxyMappingTXT="${proxyMappingTXT}
+      location ${proxy} {
+          proxy_pass ${shopifyProxies[$proxy]};
+      }"
+   done
+   shopifyProxyTXT="
+# Proxy here
 server {
-    listen 80;
-    index index.php index.html index.htm;
+    listen ${11};
     server_name $1.proxy;
     $headersTXT
 
-    location /${shopifyParams[backend_path]}/ {
-            proxy_pass http://$1/${shopifyParams[backend_path]}/;
-    }
-    location /${shopifyParams[public_path]}/ {
-            proxy_pass http://$1/${shopifyParams[public_path]}/;
-    }
-    location / {
-            proxy_pass ${shopifyParams[frontend_dev_url]};
-    }
+    $proxyMappingTXT
 }"
 fi
 
@@ -72,6 +72,7 @@ block="server {
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
+        $headersTXT
     }
 
     $configureXhgui

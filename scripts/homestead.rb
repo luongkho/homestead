@@ -352,10 +352,17 @@ class Homestead
             rewrites.gsub! '$', '\$'
           end
           # Build Shopify params if any
-          if site.include? 'shopify'
-            shopify_params = '([backend_path]=' + (site['shopify']['backend_path'] ||= 'backend') +
-                             ' [frontend_dev_url]=' + (site['shopify']['frontend_dev_url'] ||= 'http://127.0.0.1:3000/') +
-                             ' [public_path]=' + (site['shopify']['public_path'] ||= 'public') + ')'
+          if (site.include? 'shopify') && (site['shopify'].include? 'proxies')
+            if site['shopify']['proxies'].include? 'port'
+              shopify_poxy_port = site['shopify']['proxies']['port']
+            end
+            if site['shopify']['proxies'].include? 'maps'
+              shopify_proxies = '('
+              site['shopify']['proxies']['maps'].each do |proxy|
+                shopify_proxies += ' [' + proxy['from'] + ']=' + proxy['to']
+              end
+              shopify_proxies += ' )'
+            end
           end
 
           # Convert the site & any options to an array of arguments passed to the
@@ -372,7 +379,8 @@ class Homestead
               site['exec'] ||= 'false',   # $8
               headers ||= '',             # $9
               rewrites ||= '',            # $10
-              shopify_params ||= ''       # $11
+              shopify_poxy_port ||= 80,   # $11
+              shopify_proxies ||= ''      # $12
           ]
 
           # Should we use the wildcard ssl?
