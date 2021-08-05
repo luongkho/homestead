@@ -352,13 +352,13 @@ class Homestead
             rewrites.gsub! '$', '\$'
           end
           # Build Shopify params if any
-          if (site.include? 'shopify') && (site['shopify'].include? 'proxies')
-            if site['shopify']['proxies'].include? 'port'
-              shopify_poxy_port = site['shopify']['proxies']['port']
+          if site.include? 'shopify'
+            if site['shopify'].include? 'tunnelPort'
+              shopify_tunnel_port = site['shopify']['tunnelPort']
             end
-            if site['shopify']['proxies'].include? 'maps'
+            if site['shopify'].include? 'maps'
               shopify_proxies = '('
-              site['shopify']['proxies']['maps'].each do |proxy|
+              site['shopify']['maps'].each do |proxy|
                 shopify_proxies += ' [' + proxy['from'] + ']=' + proxy['to']
               end
               shopify_proxies += ' )'
@@ -379,7 +379,7 @@ class Homestead
               site['exec'] ||= 'false',   # $8
               headers ||= '',             # $9
               rewrites ||= '',            # $10
-              shopify_poxy_port ||= 80,   # $11
+              shopify_tunnel_port ||= 0,  # $11
               shopify_proxies ||= ''      # $12
           ]
 
@@ -450,9 +450,14 @@ class Homestead
         # Additional host for Shopify
         if type == 'shopify'
           config.vm.provision 'shell' do |s|
-            s.name = 'Additional Shopify proxy host: ' + site['map'] + '.proxy'
+            s.name = 'Additional Shopify tunnel host: ' + site['map'] + '.tunnel'
             s.path = script_dir + "/hosts-add.sh"
-            s.args = ['127.0.0.1', site['map'] + '.proxy']
+            s.args = ['127.0.0.1', site['map'] + '.tunnel']
+          end
+          config.vm.provision 'shell' do |s|
+            s.name = 'Additional Shopify ngrok host: ' + site['map'] + '.ngrok'
+            s.path = script_dir + "/hosts-add.sh"
+            s.args = ['127.0.0.1', site['map'] + '.ngrok']
           end
         end
 

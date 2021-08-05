@@ -216,7 +216,7 @@ function share() {
 }
 
 function shopify-share() {
-    ngrok http "$1.proxy" -host-header=rewrite
+    ngrok http "$1.ngrok" -host-header=rewrite
 }
 
 function flip() {

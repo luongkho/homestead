@@ -39,20 +39,37 @@ if [ -n "${12}" ]; then
       }"
    done
    shopifyProxyTXT="
-# Proxy here
+# Ngrok proxy here
 server {
-    listen ${11};
-    server_name $1.proxy;
+    server_name $1.ngrok;
+
+    # Default header for Shopify
+    add_header Access-Control-Allow-Origin *;
     $headersTXT
 
     $proxyMappingTXT
 }"
+    # Compare numbers by double parenthesis
+    if (("${11}" > 0)); then
+        shopifyProxyTXT="${shopifyProxyTXT}
+# Tunnel proxy here
+server {
+    listen ${11};
+    server_name $1.tunnel;
+
+    # Default header for Shopify
+    add_header Access-Control-Allow-Origin *;
+    $headersTXT
+
+    $proxyMappingTXT
+}"
+    fi
 fi
 
 if [ "$7" = "true" ]
 then configureXhgui="
 location /xhgui {
-        try_files \$uri \$uri/ /xhgui/index.php?\$args;
+    try_files \$uri \$uri/ /xhgui/index.php?\$args;
 }
 "
 else configureXhgui=""
