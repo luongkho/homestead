@@ -16,7 +16,7 @@ folders:
 sites:
     - map: shopify.local
       to: /home/vagrant/code/shopify
-      # Default header "Access-Control-Allow-Origin *" already added
+      # Default headers "Access-Control-Allow-Origin *", "Access-Control-Allow-Headers *"; already added
       type: shopify
       shopify:
         tunnelPort: 80  # add to enable SSH tunnel proxy
@@ -27,8 +27,8 @@ sites:
             to: http://shopify.local/public/
           - from: /
             to: http://shopify.local/
-      # Publish Shopify domain via Ngrok
-      #    shopify-share shopify.local
+      # Publish Shopify domain via Ngrok or Localtunnel
+      #    shopify-share shopify.local, shopify-share-lt shopify.local
 
 databases:
     - homestead

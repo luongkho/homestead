@@ -45,10 +45,24 @@ server {
 
     # Default header for Shopify
     add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Headers *;
     $headersTXT
 
     $proxyMappingTXT
-}"
+}
+
+# LocalTunnel proxy here
+server {
+    server_name $1.lt;
+
+    # Default header for Shopify
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Headers *;
+    $headersTXT
+
+    $proxyMappingTXT
+}
+"
     # Compare numbers by double parenthesis
     if (("${11}" > 0)); then
         shopifyProxyTXT="${shopifyProxyTXT}

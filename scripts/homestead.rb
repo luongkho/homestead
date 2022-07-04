@@ -459,6 +459,11 @@ class Homestead
             s.path = script_dir + "/hosts-add.sh"
             s.args = ['127.0.0.1', site['map'] + '.ngrok']
           end
+          config.vm.provision 'shell' do |s|
+            s.name = 'Additional Shopify LocalTunnel host: ' + site['map'] + '.lt'
+            s.path = script_dir + "/hosts-add.sh"
+            s.args = ['127.0.0.1', site['map'] + '.lt']
+          end
         end
 
         # Configure The Cron Schedule
