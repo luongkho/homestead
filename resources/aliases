@@ -349,3 +349,34 @@ function xphp() {
 
     if ! $XDEBUG_ENABLED; then xoff; fi
 }
+
+function myshot-status() {
+    sudo du -hs /home/vagrant/mysql-snapshot/*
+}
+
+function myshot-branch() {
+    if [[ "$1" ]]
+    then
+        sudo xtrabackup --backup --target-dir=/home/vagrant/mysql-snapshot/$1
+    else
+        echo "Missing snapshot name."
+    fi
+}
+
+function myshot-merge() {
+    if [[ "$1" ]]
+    then
+        sudo xtrabackup --prepare --target-dir=/home/vagrant/mysql-snapshot/$1 && sudo service mysql stop && sudo rsync -avrP /home/vagrant/mysql-snapshot/$1/ /var/lib/mysql/ && sudo chown -R mysql:mysql /var/lib/mysql && sudo service mysql start
+    else
+        echo "Missing snapshot name."
+    fi
+}
+
+function myshot-delete() {
+    if [[ "$1" ]]
+    then
+        sudo rm -rvf /home/vagrant/mysql-snapshot/$1
+    else
+        echo "Missing snapshot name."
+    fi
+}

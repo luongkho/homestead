@@ -21,3 +21,11 @@
 # More info: https://github.com/nodesource/distributions/blob/master/README.md#debinstall
 #curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
 #sudo apt-get install -y nodejs
+
+cd /home/vagrant/
+mkdir mysql-snapshot
+wget https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb
+sudo dpkg -i percona-release_latest.$(lsb_release -sc)_all.deb
+sudo percona-release enable-only tools release
+sudo apt-get update
+sudo apt -y install percona-xtrabackup-80
