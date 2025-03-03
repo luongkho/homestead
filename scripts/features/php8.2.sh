@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 
 if [ -f ~/.homestead-features/wsl_user_name ]; then
-   WSL_USER_NAME="$(cat ~/.homestead-features/wsl_user_name)"
-   WSL_USER_GROUP="$(cat ~/.homestead-features/wsl_user_group)"
+    WSL_USER_NAME="$(cat ~/.homestead-features/wsl_user_name)"
+    WSL_USER_GROUP="$(cat ~/.homestead-features/wsl_user_group)"
 else
-   WSL_USER_NAME=vagrant
-   WSL_USER_GROUP=vagrant
+    WSL_USER_NAME=vagrant
+    WSL_USER_GROUP=vagrant
 fi
 
 export DEBIAN_FRONTEND=noninteractive
 
+SERVICE_STATUS=$(systemctl is-enabled php8.2-fpm.service)
+
+if [ "$SERVICE_STATUS" == "disabled" ];
+then
+  systemctl enable php8.2-fpm
+  service php8.2-fpm restart
+fi
+
 if [ -f /home/$WSL_USER_NAME/.homestead-features/php82 ]
 then
-   echo "PHP 8.2 already installed."
-   exit 0
+    echo "PHP 8.2 already installed."
+    exit 0
 fi
 
 touch /home/$WSL_USER_NAME/.homestead-features/php82
@@ -60,3 +68,6 @@ sed -i "s/group = www-data/group = vagrant/" /etc/php/8.2/fpm/pool.d/www.conf
 sed -i "s/listen\.owner.*/listen.owner = vagrant/" /etc/php/8.2/fpm/pool.d/www.conf
 sed -i "s/listen\.group.*/listen.group = vagrant/" /etc/php/8.2/fpm/pool.d/www.conf
 sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/8.2/fpm/pool.d/www.conf
+
+systemctl enable php8.2-fpm
+service php8.2-fpm restart

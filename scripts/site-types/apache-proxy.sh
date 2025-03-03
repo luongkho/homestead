@@ -23,16 +23,35 @@ if [ -n "$2" ]
 then
     if ! [[ "$2" =~ ^[0-9]+$ ]]
     then
+        if ! [[ "$2" =~ ^https: ]]
+        then
+            socket=$(echo "$2" | sed -E "s/^http(s?):\/\//ws:\/\//g")
+        else
+            socket=$(echo "$2" | sed -E "s/^http(s?):\/\//wss:\/\//g")
+        fi
+
         proxyPass="
+        RewriteEngine On
+        RewriteCond %{HTTP:Upgrade} =websocket [NC]
+        RewriteRule /(.*) $socket/ [P,L]
+
         ProxyPass / ${2}/
         ProxyPassReverse / ${2}/
         "
     else proxyPass="
+        RewriteEngine On
+        RewriteCond %{HTTP:Upgrade} =websocket [NC]
+        RewriteRule /(.*) ws://127.0.0.1:$2/ [P,L]
+
         ProxyPass / http://127.0.0.1:$2/
         ProxyPassReverse / http://127.0.0.1:$2/
         "
     fi
 else proxyPass="
+RewriteEngine On
+RewriteCond %{HTTP:Upgrade} =websocket [NC]
+RewriteRule /(.*) ws://127.0.0.1/ [P,L]
+
 ProxyPass / http://127.0.0.1/
 ProxyPassReverse / http://127.0.0.1/
 "
@@ -59,6 +78,11 @@ block="<VirtualHost *:$3>
     ServerName $1
     ServerAlias www.$1
 
+    ProxyPreserveHost On
+    RequestHeader set X-Real-IP %{REMOTE_ADDR}s
+    RequestHeader set Upgrade websocket
+    RequestHeader set Connection Upgrade
+
     $paramsTXT
     $headersTXT
 
@@ -77,7 +101,13 @@ blockssl="<IfModule mod_ssl.c>
         ServerName $1
         ServerAlias www.$1
 
+        ProxyPreserveHost On
+        RequestHeader set X-Real-IP %{REMOTE_ADDR}s
+        RequestHeader set Upgrade websocket
+        RequestHeader set Connection Upgrade
+
         $paramsTXT
+        $headersTXT
 
         SSLEngine on
 
