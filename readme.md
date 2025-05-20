@@ -17,3 +17,4 @@
 
 - Integrated Shopify
 - Integrate DB snapshot
+- Latest Ubuntu version 22.04
