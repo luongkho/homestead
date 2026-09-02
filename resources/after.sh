@@ -27,7 +27,7 @@ mkdir mysql-snapshot
 wget https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb
 sudo dpkg -i percona-release_latest.$(lsb_release -sc)_all.deb
 sudo percona-release enable-only tools release
-sudo apt-get update
+sudo apt-get update --allow-releaseinfo-change
 sudo apt -y install percona-xtrabackup-80
 
 # Add an alternative solution for Ngrok
